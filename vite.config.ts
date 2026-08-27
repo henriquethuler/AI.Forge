@@ -4,17 +4,19 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '.', '');
+  // Carrega todas as variáveis de ambiente, inclusive as do sistema (Railway)
+  const env = loadEnv(mode, process.cwd(), '');
+  
   return {
     plugins: [react(), tailwindcss()],
-    base: '/', // Essencial para o Railway carregar os assets corretamente na raiz
+    base: '/',
     server: {
       host: '0.0.0.0',
       port: Number(process.env.PORT) || 3000,
-      hmr: process.env.DISABLE_HMR !== 'true',
     },
     define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(process.env.GEMINI_API_KEY),
+      // Força a injeção da chave lida do sistema no código do navegador
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || process.env.GEMINI_API_KEY),
     },
     resolve: {
       alias: {
